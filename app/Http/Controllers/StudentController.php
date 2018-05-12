@@ -4,10 +4,32 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreStudentDetail;
 use App\Http\Requests\UpdateStudentDetail;
-use App\Student;
+use App\Repositories\Student\StudentRepository;
 
+/**
+ * Class StudentController
+ *
+ * @package App\Http\Controllers
+ * @author Hafiz Suhaimi <pisyek@gmail.com>
+ * @copyright 2018 Pisyek Studios
+ */
 class StudentController extends Controller
 {
+    /**
+     * @var StudentRepository
+     */
+    protected $student;
+
+    /**
+     * StudentController constructor.
+     *
+     * @param StudentRepository $student
+     */
+    public function __construct(StudentRepository $student)
+    {
+        $this->student = $student;
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -15,7 +37,7 @@ class StudentController extends Controller
      */
     public function index()
     {
-        $students = Student::all();
+        $students = $this->student->getAll();
         return view('student-index', compact('students'));
     }
 
@@ -38,7 +60,7 @@ class StudentController extends Controller
     public function store(StoreStudentDetail $request)
     {
         $data = $request->all();
-        $student = Student::create($data);
+        $student = $this->student->create($data);
         return redirect()->back()->with('status','Successfully created ' . $student->name . '.');
     }
 
@@ -50,7 +72,7 @@ class StudentController extends Controller
      */
     public function show($id)
     {
-        return Student::find($id);
+        return $this->student->getById($id);
     }
 
     /**
@@ -61,7 +83,7 @@ class StudentController extends Controller
      */
     public function edit($id)
     {
-        $student = Student::find($id);
+        $student = $this->student->getById($id);
         return view('student-edit', compact('student'));
     }
 
@@ -74,8 +96,8 @@ class StudentController extends Controller
      */
     public function update(UpdateStudentDetail $request, $id)
     {
-        $student = Student::find($id);
-        $student->update($request->all());
+        $data = $request->all();
+        $student = $this->student->update($id, $data);
         return redirect()->back()->with('status', 'Successfully updated ' . $student->name . '.');
     }
 
@@ -87,8 +109,7 @@ class StudentController extends Controller
      */
     public function destroy($id)
     {
-        $student = Student::find($id);
-        $student->delete();
+        $student = $this->student->delete($id);
         return redirect()->back()->with('status', 'Successfully deleted ' . $student->name . '.');
     }
 }
