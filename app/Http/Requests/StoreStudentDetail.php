@@ -30,11 +30,24 @@ class StoreStudentDetail extends FormRequest
      */
     public function rules()
     {
+        $today = now();
+        $validCountry = implode(',', config('country'));
+
         return [
             'name' => 'required',
-            'dob' => 'required',
-            'nationality' => 'required',
-            'phone' => 'required|unique:students,phone',
+            'dob' => [
+                'required',
+                'date_format:Y-m-d',
+                'before_or_equal:'. $today,
+            ],
+            'nationality' => [
+                'required',
+                'in:' . $validCountry,
+            ],
+            'phone' => [
+                'required',
+                'unique:students,phone'
+            ],
         ];
     }
 }
